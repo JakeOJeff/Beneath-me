@@ -22,4 +22,8 @@ end
 
 function love.draw()
     love.graphics.draw(stableSky)
+    for i = 1, #layers do
+        love.graphics.draw(layers[i], ox, oy)
+        
+    end
 end

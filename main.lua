@@ -26,9 +26,11 @@ end
 function love.draw()
     push:start()
         love.graphics.draw(stableSky, 0, -44 + oy/10)
+        love.graphics.setScissor(0, -44 + oy/10 + stableSky:getHeight() - 49, wW * 4, wH * 4)
         for i = 1, #layers do
             love.graphics.draw(layers[i], 0, oy/10 * i)
 
         end
+        love.graphics.setScissor()
     push:finish()
 end

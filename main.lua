@@ -28,6 +28,14 @@ function love.load()
     pointer = love.graphics.newImage("assets/pointer.png")
     timer = 0
 
+    -- fishes
+    fishes = {
+        {
+            name = "Tuna",
+            img = love.graphics.newImage()
+        }
+    }
+
     -- Drag system
     canvasOffsetY = -10
     dragActive = false

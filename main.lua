@@ -9,7 +9,7 @@ function love.load()
     baseY = player.y
     ox, oy = 0, 0
     wW, wH = 140, 88
-    push:setupScreen(wW, wH, wW * 6, wH * 6, {fullscreen = false})
+    push:setupScreen(wW, wH, wW * 10, wH * 10, {fullscreen = false})
 
     stableSky = love.graphics.newImage("assets/watertop/stable.png")
     for i = 1, 4 do
@@ -17,14 +17,19 @@ function love.load()
     end
     buoy = love.graphics.newImage("assets/watertop/buoy.png")
 
+    depths = {
+        love.graphics.newImage("assets/depths/1.png")
+    }
+
     timer = 0
+    squeezeX = 1
 
     -- Canvas / drag state
-    canvasOffsetY = 0       -- total vertical offset of the scene
+    canvasOffsetY = -10
     dragActive = false
     dragLastY = 0
     dragVelocityY = 0
-    friction = 0.92         -- how quickly the momentum decays (lower = stops faster)
+    friction = 0.92
 end
 
 function love.update(dt)
@@ -33,19 +38,22 @@ function love.update(dt)
     ox, oy = distFromCenter(player.x, player.y)
 
     local speed = 3
-    local amplitude = 16
+    local amplitude = 12
     local rotSpeed = 3
     local rotAmplitude = 0.02
 
     player.y = baseY + math.sin(timer * speed) * amplitude
     player.rotation = math.sin(timer * rotSpeed) * rotAmplitude
 
+    -- Squeeze based on depth
+    local depth = math.max(-canvasOffsetY, 0)
+    squeezeX = math.max(1 - (depth * 0.002), 0.6)
+
     -- Apply momentum when not dragging
     if not dragActive then
         canvasOffsetY = canvasOffsetY + dragVelocityY
         dragVelocityY = dragVelocityY * friction
 
-        -- Stop tiny drifts
         if math.abs(dragVelocityY) < 0.01 then
             dragVelocityY = 0
         end
@@ -68,17 +76,14 @@ end
 function love.mousereleased(x, y, button)
     if button == 1 then
         dragActive = false
-        -- velocity carries over from last frame delta
     end
 end
 
 function love.mousemoved(x, y, dx, dy)
     if dragActive then
-        local _, gdy = push:toGame(0, dy)  -- convert delta to game space
-        local _, gy  = push:toGame(x, y)
+        local _, gy = push:toGame(x, y)
 
-        -- Track velocity as the delta this frame
-        dragVelocityY = (gy - dragLastY)/2
+        dragVelocityY = gy - dragLastY
         dragLastY = gy
 
         canvasOffsetY = canvasOffsetY + dragVelocityY
@@ -93,14 +98,23 @@ function love.draw()
         love.graphics.scale(1.05, 1.05)
         love.graphics.translate(-wW/2, -wH/2)
 
-            -- Apply canvas drag offset to everything
             love.graphics.push()
             love.graphics.translate(0, canvasOffsetY)
 
+                -- Depth image drawn BEFORE squeeze, unaffected
+                love.graphics.draw(depths[1], 0, (wH - layers[#layers]:getHeight()) + 35)
+
+                -- Squeeze only Y, only for ocean layers
+                love.graphics.translate(0, wH/2)
+                love.graphics.scale(1, squeezeX)  -- X stays 1, Y squeezes
+                love.graphics.translate(0, -wH/2)
+
                 love.graphics.draw(stableSky, 0, -44 + oy/10)
+
                 for i = 1, #layers do
                     love.graphics.draw(layers[i], 0, (wH - layers[i]:getHeight()) + oy/10 * i)
                 end
+
                 love.graphics.draw(buoy, 0, (wH - layers[#layers]:getHeight()) + oy/10 * #layers - buoy:getHeight())
 
             love.graphics.pop()

@@ -33,7 +33,7 @@ function love.load()
     dragActive = false
     dragLastY = 0
     dragVelocityY = 0
-    friction = 0.92
+    friction = 0.98
 end
 
 function love.update(dt)
@@ -120,6 +120,10 @@ function love.draw()
 
             love.graphics.pop()
         love.graphics.pop()
+
+            love.graphics.draw(ruler, wW/scale - ruler:getWidth() - 5, (wH)/scale/2 - ruler:getHeight()/2)
+
+            love.graphics.draw(pointer,wW/scale - ruler:getWidth() - 9, ((wH)/scale/2 - ruler:getHeight()/2 - 1 ) + (-(canvasOffsetY)/(depths[1]:getHeight() * 2)) * ruler:getHeight())
 
     love.graphics.pop()
 

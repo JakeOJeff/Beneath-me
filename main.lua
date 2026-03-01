@@ -90,6 +90,7 @@ function love.draw()
     love.graphics.push()
     love.graphics.scale(scale, scale)
 
+        -- Rotate around center (use mW/mH, not wW/wH)
         love.graphics.push()
         love.graphics.translate(mW/2, mH/2)
         love.graphics.rotate(player.rotation)

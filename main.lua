@@ -24,6 +24,8 @@ function love.load()
         love.graphics.newImage("assets/depths/1.png"),        love.graphics.newImage("assets/depths/2.png")
     }
 
+    ruler = love.graphics.newImage("assets/depth-bar.png")
+    pointer = love.graphics.newImage("assets/pointer.png")
     timer = 0
 
     -- Drag system
@@ -39,7 +41,7 @@ function love.update(dt)
     ox, oy = distFromCenter(player.x, player.y)
 
     local speed = 3
-    local amplitude = 16
+    local amplitude = (canvasOffsetY < -90) and 1 or 12
     local rotSpeed = 3
     local rotAmplitude = 0.02
 
@@ -48,7 +50,7 @@ function love.update(dt)
 
     -- Momentum
     if not dragActive then
-        canvasOffsetY = canvasOffsetY + dragVelocityY
+        canvasOffsetY = math.min(canvasOffsetY + dragVelocityY, -10)
         dragVelocityY = dragVelocityY * friction
 
         if math.abs(dragVelocityY) < 0.01 then
@@ -82,7 +84,8 @@ function love.mousemoved(x, y, dx, dy)
         dragVelocityY = gy - dragLastY
         dragLastY = gy
 
-        canvasOffsetY = canvasOffsetY + dragVelocityY
+        canvasOffsetY = math.min(canvasOffsetY + dragVelocityY, -10)
+
     end
 end
 
@@ -119,4 +122,6 @@ function love.draw()
         love.graphics.pop()
 
     love.graphics.pop()
+
+    love.graphics.print(canvasOffsetY)
 end

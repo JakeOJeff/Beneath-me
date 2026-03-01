@@ -8,7 +8,7 @@ function love.load()
     ox, oy = 0, 0
 
     mW, mH = 140, 88
-    scale = 6
+    scale = 10
     wW = mW * scale
     wH = mH * scale
 
@@ -21,7 +21,7 @@ function love.load()
     buoy = love.graphics.newImage("assets/watertop/buoy.png")
 
     depths = {
-        love.graphics.newImage("assets/depths/1.png")
+        love.graphics.newImage("assets/depths/1.png"),        love.graphics.newImage("assets/depths/2.png")
     }
 
     timer = 0
@@ -101,6 +101,7 @@ function love.draw()
             love.graphics.push()
             love.graphics.translate(0, canvasOffsetY)
 
+                love.graphics.draw(depths[2], 0, (mH - layers[#layers]:getHeight()) + 35 + depths[1]:getHeight())
                 love.graphics.draw(depths[1], 0, (mH - layers[#layers]:getHeight()) + 35)
 
                 love.graphics.draw(stableSky, 0, -44 + oy/10)

@@ -1,6 +1,3 @@
--- ============================================================
---  DEEP DIVE  –  depth-based fishing exploration
--- ============================================================
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")

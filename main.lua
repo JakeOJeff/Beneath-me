@@ -28,7 +28,7 @@ local function distFromCenter(x, y)
 end
 
 local function maxDepth(depths)
-    return -(depths[1]:getHeight() * 2 - mH + 10)
+    return -(depths[1]:getHeight() *  #depths - mH + 10)
 end
 
 -- ─────────────────────────────────────────────────────────────
@@ -42,9 +42,10 @@ local function catchFish(idx)
 
     -- particle burst in screen space
     local img = def.img
-    local cx  = (f.x + img:getWidth()  / 2) * scale
-    local cy  = (f.y + Camera.offsetY  + img:getHeight() / 2) * scale
-    ParticleManager.burst(cx, cy, def.color[1], def.color[2], def.color[3])
+    -- local cx  = (f.x + img:getWidth()  / 2) * scale
+    -- local cy  = (f.y + Camera.offsetY  + img:getHeight() / 2) * scale
+    -- ParticleManager.burst(cx, cy, def.color[1], def.color[2], def.color[3])
+    ParticleManager.burst((f.x + img:getWidth() /2 )* scale, (f.y + Camera.offsetY + img:getHeight() /2) * scale, def.color[1], def.color[2], def.color[3])
 
     catchFeedback = {
         text  = "+" .. def.points .. "  " .. def.name .. "!",
@@ -53,8 +54,8 @@ local function catchFish(idx)
     }
 
     FishManager.remove(idx)
-    Camera.returnToSurface()
-    FishManager.clear()
+    -- -- Camera.returnToSurface()
+    -- FishManager.clear()
 end
 
 -- ─────────────────────────────────────────────────────────────
@@ -123,6 +124,8 @@ function love.draw()
 
                 -- depth backgrounds
                 local depthBgY = (mH - Assets.layers[#Assets.layers]:getHeight()) + 35
+                love.graphics.draw(Assets.depths[4], 0, depthBgY +  Assets.depths[1]:getHeight() * 3 )
+                love.graphics.draw(Assets.depths[3], 0, depthBgY +  Assets.depths[1]:getHeight() * 2 )
                 love.graphics.draw(Assets.depths[2], 0, depthBgY + Assets.depths[1]:getHeight())
                 love.graphics.draw(Assets.depths[1], 0, depthBgY)
 

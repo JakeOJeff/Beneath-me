@@ -1,0 +1,29 @@
+
+
+local Settings = {}
+
+-- World / window
+Settings.MAP_W          = 140
+Settings.MAP_H          = 88
+Settings.SCALE          = 10
+
+-- Scroll / physics
+Settings.INITIAL_OFFSET_Y      = -10
+Settings.FRICTION              = 0.98
+Settings.DEPTH_ZONE_THRESHOLD  = -70
+
+-- Fish spawning
+Settings.FISH_SPAWN_INTERVAL   = 2.5
+Settings.MAX_FISH              = 6
+
+-- Asset paths
+Settings.FONTS = {
+    jersey = "fonts/jersey.ttf",
+}
+
+Settings.FONT_SIZES = {
+    h  = 36,
+    sm = 28,
+}
+
+return Settings

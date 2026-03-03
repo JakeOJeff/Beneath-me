@@ -13,8 +13,8 @@ Settings.FRICTION              = 0.98
 Settings.DEPTH_ZONE_THRESHOLD  = -70
 
 -- Fish spawning
-Settings.FISH_SPAWN_INTERVAL   = 2.5
-Settings.MAX_FISH              = 6
+Settings.FISH_SPAWN_INTERVAL   = 1
+Settings.MAX_FISH              = 50
 
 -- Asset paths
 Settings.FONTS = {

@@ -7,7 +7,7 @@ local Camera   = require("src.systems.camera")
 local HUD = {}
 
 -- Surface button geometry (screen-space pixels)
-HUD.surfaceBtn = { x = 14, y = 14, w = 120, h = 34, label = "▲ Surface" }
+HUD.surfaceBtn = { x = 14, y = 14, w = 120, h = 34, label = "Surface" }
 
 ---Returns true if the given screen-space point is inside the surface button.
 function HUD.hitsSurfaceBtn(sx, sy)
@@ -85,12 +85,12 @@ function HUD.drawRuler(ruler, pointer, depths, mW, mH, offsetY, threshold)
 
     -- pointer position
     local pY = rulerY - 1 +
-        ((-offsetY) / (depths[1]:getHeight() * 2)) * ruler:getHeight()
+        ((-offsetY + 20) / (depths[1]:getHeight() * 4)) * ruler:getHeight()
     love.graphics.draw(pointer, rulerX - 4, pY)
 
     -- depth-zone line
     local zoneY = rulerY +
-        ((-threshold) / (depths[1]:getHeight() * 2)) * ruler:getHeight()
+        ((-threshold) / (depths[1]:getHeight() * 3)) * ruler:getHeight()
     love.graphics.setColor(0.3, 0.8, 1, 0.9)
     love.graphics.line(rulerX - 3, zoneY, rulerX + ruler:getWidth() + 1, zoneY)
     love.graphics.setColor(1, 1, 1, 1)

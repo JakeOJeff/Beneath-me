@@ -15,6 +15,9 @@ function Assets.load()
     Assets.depths = {
         love.graphics.newImage("assets/depths/1.png"),
         love.graphics.newImage("assets/depths/2.png"),
+        love.graphics.newImage("assets/depths/3.png"),
+        love.graphics.newImage("assets/depths/4.png"),
+
     }
 
     -- UI elements

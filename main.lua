@@ -38,7 +38,7 @@ end
 local function catchFish(idx)
     local f   = FishManager.fish[idx]
     local def = f.def
-    score = score + def.points
+    -- score = score + def.points
 
     -- particle burst in screen space
     local img = def.img
@@ -47,12 +47,19 @@ local function catchFish(idx)
     -- ParticleManager.burst(cx, cy, def.color[1], def.color[2], def.color[3])
     ParticleManager.burst((f.x + img:getWidth() /2 )* scale, (f.y + Camera.offsetY + img:getHeight() /2) * scale, def.color[1], def.color[2], def.color[3])
 
+    -- catchFeedback = {
+    --     text  = "+" .. def.points .. "  " .. def.name .. "!",
+    --     timer = 2.5,
+    --     color = def.color,
+    -- }
+
     catchFeedback = {
-        text  = "+" .. def.points .. "  " .. def.name .. "!",
+        text  = "You have caught a " ..  def.name.." ["..def.rarity .. "] worth "..def.points.." points!",
         timer = 2.5,
         color = def.color,
     }
-
+    
+    table.insert(FishManager.inventory, FishManager.fish[idx])
     FishManager.remove(idx)
     -- -- Camera.returnToSurface()
     -- FishManager.clear()

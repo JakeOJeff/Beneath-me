@@ -5,6 +5,7 @@ local spawnTimer = 0
 
 function FishManager.init()
     FishManager.fish = {}
+    FishManager.inventory = {}
     spawnTimer = 0
 end
 

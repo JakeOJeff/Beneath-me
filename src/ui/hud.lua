@@ -85,7 +85,7 @@ function HUD.drawRuler(ruler, pointer, depths, mW, mH, offsetY, threshold)
 
     -- pointer position
     local pY = rulerY - 1 +
-        ((-offsetY + 20) / (depths[1]:getHeight() * 4)) * ruler:getHeight()
+        ((-offsetY + 20) / (depths[1]:getHeight() * #Assets.depths)) * ruler:getHeight()
     love.graphics.draw(pointer, rulerX - 4, pY)
 
     -- depth-zone line

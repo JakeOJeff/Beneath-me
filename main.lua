@@ -124,6 +124,7 @@ function love.draw()
 
                 -- depth backgrounds
                 local depthBgY = (mH - Assets.layers[#Assets.layers]:getHeight()) + 35
+                love.graphics.draw(Assets.depths[5], 0, depthBgY +  Assets.depths[1]:getHeight() * 4 )
                 love.graphics.draw(Assets.depths[4], 0, depthBgY +  Assets.depths[1]:getHeight() * 3 )
                 love.graphics.draw(Assets.depths[3], 0, depthBgY +  Assets.depths[1]:getHeight() * 2 )
                 love.graphics.draw(Assets.depths[2], 0, depthBgY + Assets.depths[1]:getHeight())

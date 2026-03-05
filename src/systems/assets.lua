@@ -17,6 +17,7 @@ function Assets.load()
         love.graphics.newImage("assets/depths/2.png"),
         love.graphics.newImage("assets/depths/3.png"),
         love.graphics.newImage("assets/depths/4.png"),
+        love.graphics.newImage("assets/depths/5.png"),
 
     }
 

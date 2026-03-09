@@ -8,6 +8,7 @@ local HUD = {}
 
 -- Surface button geometry (screen-space pixels)
 HUD.surfaceBtn = { x = 14, y = 14, w = 120, h = 34, label = "Surface" }
+HUD.inventoryBtn = { x = 14, y = 14 + 34 + 5, w = 120, h = 34, label = "Inventory" }
 
 ---Returns true if the given screen-space point is inside the surface button.
 function HUD.hitsSurfaceBtn(sx, sy)
@@ -16,11 +17,12 @@ function HUD.hitsSurfaceBtn(sx, sy)
        and sy >= b.y and sy <= b.y + b.h
 end
 
-function HUD.drawSurfaceButton(font, inDepth)
-    local b        = HUD.surfaceBtn
-    local alpha    = inDepth and 1 or 0.35
 
-    love.graphics.setColor(0.1, 0.2, 0.4, 0.85 * alpha)
+function HUD.drawButton(font, inDepth, button)
+    local b = button
+    local alpha    = inDepth and 1 or 0.35
+    if b then
+            love.graphics.setColor(0.1, 0.2, 0.4, 0.85 * alpha)
     love.graphics.rectangle("fill", b.x, b.y, b.w, b.h, 4, 4)
     love.graphics.setColor(0.5, 0.85, 1, alpha)
     love.graphics.rectangle("line", b.x, b.y, b.w, b.h, 4, 4)
@@ -31,6 +33,8 @@ function HUD.drawSurfaceButton(font, inDepth)
         b.x + (b.w - lw) / 2,
         b.y + (b.h - font.sm:getHeight()) / 2)
     love.graphics.setColor(1, 1, 1, 1)
+    end
+
 end
 
 function HUD.drawScore(font, score, wW)

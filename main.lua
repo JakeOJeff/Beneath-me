@@ -174,7 +174,8 @@ function love.draw()
     love.graphics.pop()  -- scale
 
     -- ── HUD (true screen-space pixels) ───────────────────────
-    HUD.drawSurfaceButton(Assets.font, Camera.isInDepthZone())
+    HUD.drawButton(Assets.font, Camera.isInDepthZone(), HUD.surfaceBtn)
+    HUD.drawButton(Assets.font, Camera.isInDepthZone(), HUD.inventoryBtn)
     HUD.drawScore(Assets.font, score, wW)
 
     if not Camera.isInDepthZone() then

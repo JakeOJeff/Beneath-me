@@ -1,38 +1,55 @@
 -- ui/hud.lua
 -- Draws all screen-space HUD elements
-
 local Settings = require("src.conf.settings")
-local Camera   = require("src.systems.camera")
+local Camera = require("src.systems.camera")
 
 local HUD = {}
+function HUD.load()
+    -- Surface button geometry (screen-space pixels)
+    HUD.surfaceBtn = {
+        x = 14,
+        y = 14,
+        w = 120,
+        h = 34,
+        label = "Surface"
+    }
+    HUD.inventoryBtn = {
+        x = 14,
+        y = 14 + 34 + 5,
+        w = 120,
+        h = 34,
+        label = "Inventory"
+    }
 
--- Surface button geometry (screen-space pixels)
-HUD.surfaceBtn = { x = 14, y = 14, w = 120, h = 34, label = "Surface" }
-HUD.inventoryBtn = { x = 14, y = 14 + 34 + 5, w = 120, h = 34, label = "Inventory" }
-
----Returns true if the given screen-space point is inside the surface button.
-function HUD.hitsSurfaceBtn(sx, sy)
-    local b = HUD.surfaceBtn
-    return sx >= b.x and sx <= b.x + b.w
-       and sy >= b.y and sy <= b.y + b.h
+    HUD.inventory = {
+        w = wW / 1.5,
+        h = wH / 1.3,
+        toggled = false
+    }
+    HUD.inventory.x = wW / 2 - HUD.inventory.w / 2
+    HUD.inventory.y = wH / 2 - HUD.inventory.h / 2
 end
 
+---Returns true if the given screen-space point is inside the surface button.
+
+function HUD.hitBtn(button, sx, sy)
+    local b = button
+    return sx >= b.x and sx <= b.x + b.w and sy >= b.y and sy <= b.y + b.h
+end
 
 function HUD.drawButton(font, inDepth, button)
     local b = button
-    local alpha    = inDepth and 1 or 0.35
+    local alpha = inDepth and 1 or 0.35
     if b then
-            love.graphics.setColor(0.1, 0.2, 0.4, 0.85 * alpha)
-    love.graphics.rectangle("fill", b.x, b.y, b.w, b.h, 4, 4)
-    love.graphics.setColor(0.5, 0.85, 1, alpha)
-    love.graphics.rectangle("line", b.x, b.y, b.w, b.h, 4, 4)
-    love.graphics.setColor(1, 1, 1, alpha)
-    love.graphics.setFont(font.sm)
-    local lw = font.sm:getWidth(b.label)
-    love.graphics.print(b.label,
-        b.x + (b.w - lw) / 2,
-        b.y + (b.h - font.sm:getHeight()) / 2)
-    love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(0.1, 0.2, 0.4, 0.85 * alpha)
+        love.graphics.rectangle("fill", b.x, b.y, b.w, b.h, 4, 4)
+        love.graphics.setColor(0.5, 0.85, 1, alpha)
+        love.graphics.rectangle("line", b.x, b.y, b.w, b.h, 4, 4)
+        love.graphics.setColor(1, 1, 1, alpha)
+        love.graphics.setFont(font.sm)
+        local lw = font.sm:getWidth(b.label)
+        love.graphics.print(b.label, b.x + (b.w - lw) / 2, b.y + (b.h - font.sm:getHeight()) / 2)
+        love.graphics.setColor(1, 1, 1, 1)
     end
 
 end
@@ -40,7 +57,7 @@ end
 function HUD.drawScore(font, score, wW)
     love.graphics.setFont(font.h)
     local text = "Score: " .. score
-    local tw   = font.h:getWidth(text)
+    local tw = font.h:getWidth(text)
     -- drop shadow
     love.graphics.setColor(0, 0, 0, 0.45)
     love.graphics.print(text, wW - tw - 14 + 1, 17)
@@ -49,7 +66,7 @@ function HUD.drawScore(font, score, wW)
 end
 
 function HUD.drawDragHint(font, timer, wW, wH)
-    local text  = "Drag down to fish"
+    local text = "Drag down to fish"
     local alpha = math.abs(math.sin(timer * 1.5)) * 0.7 + 0.2
     love.graphics.setFont(font.sm)
     local tw = font.sm:getWidth(text)
@@ -68,8 +85,10 @@ function HUD.drawDepthZoneBanner(font, wW, wH)
 end
 
 function HUD.drawCatchFeedback(font, catchFeedback, wW, wH)
-    if not catchFeedback then return end
-    local cf   = catchFeedback
+    if not catchFeedback then
+        return
+    end
+    local cf = catchFeedback
     local fade = math.min(1, cf.timer / 0.5)
     love.graphics.setFont(font.h)
     local tw = font.h:getWidth(cf.text)
@@ -88,15 +107,25 @@ function HUD.drawRuler(ruler, pointer, depths, mW, mH, offsetY, threshold)
     love.graphics.draw(ruler, rulerX, rulerY)
 
     -- pointer position
-    local pY = rulerY - 1 +
-        ((-offsetY + 20) / (depths[1]:getHeight() * #Assets.depths)) * ruler:getHeight()
+    local pY = rulerY - 1 + ((-offsetY + 20) / (depths[1]:getHeight() * #Assets.depths)) * ruler:getHeight()
     love.graphics.draw(pointer, rulerX - 4, pY)
 
     -- depth-zone line
-    local zoneY = rulerY +
-        ((-threshold) / (depths[1]:getHeight() * 3)) * ruler:getHeight()
+    local zoneY = rulerY + ((-threshold) / (depths[1]:getHeight() * 3)) * ruler:getHeight()
     love.graphics.setColor(0.3, 0.8, 1, 0.9)
     love.graphics.line(rulerX - 3, zoneY, rulerX + ruler:getWidth() + 1, zoneY)
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
+function HUD.drawInventory(font)
+    local b = HUD.inventory
+    alpha = 1
+    love.graphics.setColor(0.1, 0.2, 0.4, 0.85 * alpha)
+    love.graphics.rectangle("fill", b.x, b.y, b.w, b.h, 4, 4)
+    love.graphics.setColor(0.5, 0.85, 1, alpha)
+    love.graphics.rectangle("line", b.x, b.y, b.w, b.h, 4, 4)
+    love.graphics.setColor(1, 1, 1, alpha)
+    love.graphics.setFont(font.sm)
     love.graphics.setColor(1, 1, 1, 1)
 end
 

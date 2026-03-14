@@ -169,5 +169,18 @@ function love.draw()
     HUD.drawButton(Assets.font, true, HUD.marketBtn)
     HUD.drawScore(Assets.font, score, wW)
 
+    if not Camera.isInDepthZone() then
+        HUD.drawDragHint(Assets.font, timer, wW, wH)
+    end
+
+    if Camera.isInDepthZone() and Camera.depthFraction() < 0.05 then
+        HUD.drawDepthZoneBanner(Assets.font, wW, wH) 
+    end
+
+    HUD.drawCatchFeedback(Assets.FONT, catchFeedback, wW, wH)
+    ParticleManagero.draw()
+
+    HUD.drawInventory(Assets.font, FishManager.inventory, wW, wH)
+    Market.draw(Assets.font, FishManager.inventory, score, wW, wH)
     
 end

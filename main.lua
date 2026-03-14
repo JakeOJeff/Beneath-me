@@ -1,26 +1,23 @@
-Settings = require("src.conf.settings")
-Assets = require("src.systems.assets")
-Camera = require("src.systems.camera")
-FishManager = require("src.systems.fish_manager")
-Particle = require("src.classes.particle")
-ParticleManager = require("src.systems.particle_manager")
-HUD = require("src.ui.hud")
-fishDefs = require("src.conf.fish_defs")
-Fish = require("src.classes.fish")
+Settings       = require("src.conf.settings")
+Assets         = require("src.systems.assets")
+Camera         = require("src.systems.camera")
+FishManager    = require("src.systems.fish_manager")
+Particle       = require("src.classes.particle")
+ParticleManager= require("src.systems.particle_manager")
+HUD            = require("src.ui.hud")
+fishDefs       = require("src.conf.fish_defs")
+Fish           = require("src.classes.fish")
+
 -- Convenience aliases (set after load)
-mW = 0 mH = 0 wW = 0 wH  = 0 scale = 0
+local mW, mH, wW, wH, scale
 
 -- Game state
-local timer = 0
-local score = 0
+local timer         = 0
+local score         = 0
 local catchFeedback = nil
-local player = {
-    x = 0,
-    y = 0,
-    rotation = 0
-}
-local baseY = 0
-local ox, oy = 0, 0
+local player        = { x = 0, y = 0, rotation = 0 }
+local baseY         = 0
+local ox, oy        = 0, 0
 
 -- ─────────────────────────────────────────────────────────────
 --  Helpers
@@ -39,34 +36,25 @@ end
 -- ─────────────────────────────────────────────────────────────
 
 local function catchFish(idx)
-    local f = FishManager.fish[idx]
+    local f   = FishManager.fish[idx]
     local def = f.def
-    -- score = score + def.points
+    score = score + def.points
 
-    -- particle burst in screen space
     local img = def.img
-    -- local cx  = (f.x + img:getWidth()  / 2) * scale
-    -- local cy  = (f.y + Camera.offsetY  + img:getHeight() / 2) * scale
-    -- ParticleManager.burst(cx, cy, def.color[1], def.color[2], def.color[3])
-    ParticleManager.burst((f.x + img:getWidth() / 2) * scale, (f.y + Camera.offsetY + img:getHeight() / 2) * scale,
+    ParticleManager.burst(
+        (f.x + img:getWidth()  / 2) * scale,
+        (f.y + Camera.offsetY  + img:getHeight() / 2) * scale,
         def.color[1], def.color[2], def.color[3])
 
-    -- catchFeedback = {
-    --     text  = "+" .. def.points .. "  " .. def.name .. "!",
-    --     timer = 2.5,
-    --     color = def.color,
-    -- }
-
     catchFeedback = {
-        text = "You have caught a " .. def.name .. " [" .. def.rarity .. "] worth " .. def.points .. " points!",
+        text  = "You have caught a " .. def.name
+                .. " [" .. def.rarity .. "] worth " .. def.points .. " points!",
         timer = 2.5,
-        color = def.color
+        color = def.color,
     }
 
     table.insert(FishManager.inventory, FishManager.fish[idx])
     FishManager.remove(idx)
-    -- -- Camera.returnToSurface()
-    -- FishManager.clear()
 end
 
 -- ─────────────────────────────────────────────────────────────
@@ -78,12 +66,12 @@ function love.load()
     math.randomseed(os.time())
 
     mW, mH = Settings.MAP_W, Settings.MAP_H
-    scale = Settings.SCALE
+    scale  = Settings.SCALE
     wW, wH = mW * scale, mH * scale
     love.window.setMode(wW, wH)
 
     Assets.load()
-    HUD.load()
+
     local md = maxDepth(Assets.depths)
     Camera.init(md)
     FishManager.init()
@@ -100,19 +88,20 @@ function love.update(dt)
 
     -- buoy bob
     local amplitude = (Camera.offsetY < -90) and 1 or 12
-    player.y = baseY + math.sin(timer * 3) * amplitude
+    player.y        = baseY + math.sin(timer * 3) * amplitude
     player.rotation = math.sin(timer * 3) * 0.02
 
     Camera.update(dt)
     FishManager.update(dt, Assets.layers, Assets.depths, mH, mW)
     ParticleManager.update(dt)
 
+    -- HUD animation (inventory slide)
+    HUD.update(dt)
+
     -- catch feedback countdown
     if catchFeedback then
         catchFeedback.timer = catchFeedback.timer - dt
-        if catchFeedback.timer <= 0 then
-            catchFeedback = nil
-        end
+        if catchFeedback.timer <= 0 then catchFeedback = nil end
     end
 end
 
@@ -124,56 +113,60 @@ function love.draw()
     love.graphics.push()
     love.graphics.scale(scale, scale)
 
-    -- world rotation (buoy bob)
-    love.graphics.push()
-    love.graphics.translate(mW / 2, mH / 2)
-    love.graphics.rotate(player.rotation)
-    love.graphics.scale(1.05, 1.05)
-    love.graphics.translate(-mW / 2, -mH / 2)
+        -- world rotation (buoy bob)
+        love.graphics.push()
+        love.graphics.translate(mW / 2, mH / 2)
+        love.graphics.rotate(player.rotation)
+        love.graphics.scale(1.05, 1.05)
+        love.graphics.translate(-mW / 2, -mH / 2)
 
-    -- vertical scroll
-    love.graphics.push()
-    love.graphics.translate(0, Camera.offsetY)
+            -- vertical scroll
+            love.graphics.push()
+            love.graphics.translate(0, Camera.offsetY)
 
-    -- depth backgrounds
-    local depthBgY = (mH - Assets.layers[#Assets.layers]:getHeight()) + 35
-    love.graphics.draw(Assets.depths[5], 0, depthBgY + Assets.depths[1]:getHeight() * 4)
-    love.graphics.draw(Assets.depths[4], 0, depthBgY + Assets.depths[1]:getHeight() * 3)
-    love.graphics.draw(Assets.depths[3], 0, depthBgY + Assets.depths[1]:getHeight() * 2)
-    love.graphics.draw(Assets.depths[2], 0, depthBgY + Assets.depths[1]:getHeight())
-    love.graphics.draw(Assets.depths[1], 0, depthBgY)
+                -- depth backgrounds
+                local depthBgY = (mH - Assets.layers[#Assets.layers]:getHeight()) + 35
+                love.graphics.draw(Assets.depths[5], 0, depthBgY + Assets.depths[1]:getHeight() * 4)
+                love.graphics.draw(Assets.depths[4], 0, depthBgY + Assets.depths[1]:getHeight() * 3)
+                love.graphics.draw(Assets.depths[3], 0, depthBgY + Assets.depths[1]:getHeight() * 2)
+                love.graphics.draw(Assets.depths[2], 0, depthBgY + Assets.depths[1]:getHeight())
+                love.graphics.draw(Assets.depths[1], 0, depthBgY)
 
-    -- sky
-    love.graphics.draw(Assets.stableSky, 0, -44 + oy / 10)
+                -- sky
+                love.graphics.draw(Assets.stableSky, 0, -44 + oy / 10)
 
-    -- water layers
-    for i = 1, #Assets.layers do
-        love.graphics.draw(Assets.layers[i], 0, (mH - Assets.layers[i]:getHeight()) + oy / 10 * i)
-    end
+                -- water layers
+                for i = 1, #Assets.layers do
+                    love.graphics.draw(Assets.layers[i], 0,
+                        (mH - Assets.layers[i]:getHeight()) + oy / 10 * i)
+                end
 
-    -- buoy
-    love.graphics.draw(Assets.buoy, 0, (mH - Assets.layers[#Assets.layers]:getHeight()) + oy / 10 * #Assets.layers -
-        Assets.buoy:getHeight())
+                -- buoy
+                love.graphics.draw(Assets.buoy, 0,
+                    (mH - Assets.layers[#Assets.layers]:getHeight()) +
+                    oy / 10 * #Assets.layers - Assets.buoy:getHeight())
 
-    -- depth zone dark overlay
-    if Camera.isInDepthZone() then
-        local df = Camera.depthFraction()
-        love.graphics.setColor(0, 0.05, 0.2, df * 0.45)
-        love.graphics.rectangle("fill", 0, 0, mW, mH * 4)
-        love.graphics.setColor(1, 1, 1, 1)
-    end
+                -- depth zone dark overlay
+                if Camera.isInDepthZone() then
+                    local df = Camera.depthFraction()
+                    love.graphics.setColor(0, 0.05, 0.2, df * 0.45)
+                    love.graphics.rectangle("fill", 0, 0, mW, mH * 4)
+                    love.graphics.setColor(1, 1, 1, 1)
+                end
 
-    -- fish
-    FishManager.draw(timer)
+                -- fish
+                FishManager.draw(timer)
 
-    love.graphics.pop() -- scroll
+            love.graphics.pop()  -- scroll
 
-    love.graphics.pop() -- rotation
+        love.graphics.pop()  -- rotation
 
-    -- ruler & pointer (fixed screen space, inside scale)
-    HUD.drawRuler(Assets.ruler, Assets.pointer, Assets.depths, mW, mH, Camera.offsetY, Settings.DEPTH_ZONE_THRESHOLD)
+        -- ruler & pointer (fixed screen space, inside scale)
+        HUD.drawRuler(
+            Assets.ruler, Assets.pointer, Assets.depths,
+            mW, mH, Camera.offsetY, Settings.DEPTH_ZONE_THRESHOLD)
 
-    love.graphics.pop() -- scale
+    love.graphics.pop()  -- scale
 
     -- ── HUD (true screen-space pixels) ───────────────────────
     HUD.drawButton(Assets.font, Camera.isInDepthZone(), HUD.surfaceBtn)
@@ -188,12 +181,11 @@ function love.draw()
         HUD.drawDepthZoneBanner(Assets.font, wW, wH)
     end
 
-    if HUD.inventory.toggled then
-        HUD.drawInventory(Assets.font)
-    end
-
     HUD.drawCatchFeedback(Assets.font, catchFeedback, wW, wH)
     ParticleManager.draw()
+
+    -- ── Inventory panel (drawn last → on top of everything) ──
+    HUD.drawInventory(Assets.font, FishManager.inventory, wW, wH)
 end
 
 -- ─────────────────────────────────────────────────────────────
@@ -201,9 +193,10 @@ end
 -- ─────────────────────────────────────────────────────────────
 
 function love.mousepressed(x, y, button)
-    if button ~= 1 then
-        return
-    end
+    if button ~= 1 then return end
+
+    -- inventory panel consumes its own clicks (including close btn)
+    if HUD.handleInventoryClick(x, y, wW, wH) then return end
 
     -- surface button
     if HUD.hitBtn(HUD.surfaceBtn, x, y) then
@@ -212,26 +205,35 @@ function love.mousepressed(x, y, button)
         return
     end
 
+    -- inventory toggle button
     if HUD.hitBtn(HUD.inventoryBtn, x, y) then
-        HUD.inventory.toggled = not HUD.inventory.toggled
-    end
-
-    -- fish click
-    local idx = FishManager.hitTest(x, y)
-    if idx then
-        catchFish(idx)
+        HUD.toggleInventory()
         return
     end
 
-    Camera.startDrag(y)
-end
+    -- fish click (only when inventory is closed)
+    if not HUD.inventoryOpen then
+        local idx = FishManager.hitTest(x, y)
+        if idx then
+            catchFish(idx)
+            return
+        end
 
-function love.mousereleased(x, y, button)
-    if button == 1 then
-        Camera.endDrag()
+        Camera.startDrag(y)
     end
 end
 
+function love.mousereleased(x, y, button)
+    if button == 1 then Camera.endDrag() end
+end
+
 function love.mousemoved(x, y, dx, dy)
-    Camera.onDrag(y)
+    -- don't drag camera while inventory is open
+    if not HUD.inventoryOpen then
+        Camera.onDrag(y)
+    end
+end
+
+function love.wheelmoved(x, y)
+    HUD.onWheel(love.mouse.getX(), love.mouse.getY(), x, y, wW, wH)
 end

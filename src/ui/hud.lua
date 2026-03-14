@@ -52,6 +52,7 @@ function HUD.hitInventoryPanel(sx, sy, wW, wH)
     return sx >= px and sx <= px + pw and sy >= py and sy <= py + ph
 end
 
+
 function HUD.toggleInventory()
     HUD.inventoryOpen = not HUD.inventoryOpen
     -- reset scroll when reopening

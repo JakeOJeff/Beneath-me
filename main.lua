@@ -72,3 +72,22 @@ local function catchFish(idx)
 end
 
 
+function love.load()
+    love.graphics.setDefaultFilter("nearest", "nearest")
+    math.randomseed(os.time())
+
+    mW, mH = Settings.MAP_W, Settings.MAP_H
+    scale = Settings.SCALE
+    wW, wH = mW * scale, mH * scale
+
+    love.window.setMode(wW, wH)
+
+    Assets.load()
+
+    local md = maxDepth(Assets.depths)
+    Camera.init(md)
+    FishManager.init()
+    ParticleManager.init()
+
+    MainMenu.init(wW, wH)
+end

@@ -182,5 +182,57 @@ function love.draw()
 
     HUD.drawInventory(Assets.font, FishManager.inventory, wW, wH)
     Market.draw(Assets.font, FishManager.inventory, score, wW, wH)
-    
+
+end
+
+
+function love.mousepressed(x, y, button)
+    if button ~= 1 then return end
+
+    if gameState == "menu" then
+        MainMenu.mousepressed(x, y, button, function()
+            gameState "playing"
+        end)
+        return
+    end
+
+
+    if Market.open then
+        if Market.handleClick(x, y, wW, wH, FishManager.inventory, function (delta)
+            score = math.max(0, score + delta)
+        end) then
+            return
+        end
+    end
+
+    if HUD.handleInventoryClick(x, y, wW, wH) then return end
+
+    if HUD.hitBtn(HUD.surfaceBtn, x, y) then
+        Camera.returnToSurface()
+        FishManager.clear()
+        return
+    end
+ 
+    if HUD.hitBtn(HUD.inventoryBtn, x, y) then
+        HUD.toggleInventory()
+        if HUD.inventoryOpen then Market.open = false end
+        return
+    end
+ 
+    if HUD.hitBtn(HUD.marketBtn, x, y) then
+        Market.toggle(score)
+        if Market.open then HUD.inventoryOpen = false end
+        return
+    end
+
+    if not HUD.inventoryBtn and not Market.open then
+        local idx = FishManager.hitTest(x, y)
+        if idx then
+            catchFish(idx)
+            return
+        end
+        Camera.startDrag(y)
+    end
+
+
 end

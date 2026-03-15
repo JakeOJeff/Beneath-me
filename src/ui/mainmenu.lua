@@ -142,40 +142,33 @@ function MainMenu.draw(font)
     local t      = MainMenu.timer
     local alpha  = 1 - math.max(0, MainMenu.fadeOut)
 
-    -- ── Deep ocean gradient background ──────────────────────
-    -- simulate with layered rects
-    setC(0.00, 0.04, 0.12, alpha)
-    love.graphics.rectangle("fill", 0, 0, wW, wH)
-    setC(0.00, 0.06, 0.18, alpha * 0.7)
-    love.graphics.rectangle("fill", 0, wH * 0.3, wW, wH * 0.7)
-    setC(0.00, 0.02, 0.08, alpha * 0.5)
-    love.graphics.rectangle("fill", 0, wH * 0.65, wW, wH * 0.35)
+    -- setC(0.00, 0.04, 0.12, alpha)
+    -- love.graphics.rectangle("fill", 0, 0, wW, wH)
+    -- setC(0.00, 0.06, 0.18, alpha * 0.7)
+    -- love.graphics.rectangle("fill", 0, wH * 0.3, wW, wH * 0.7)
+    -- setC(0.00, 0.02, 0.08, alpha * 0.5)
+    -- love.graphics.rectangle("fill", 0, wH * 0.65, wW, wH * 0.35)
 
 
-    -- ── Wave lines ───────────────────────────────────────────
-    love.graphics.setLineWidth(1.5)
-    for _, w in ipairs(waves) do
-        setC(0.20, 0.65, 0.90, alpha * w.alpha)
-        local pts = {}
-        local steps = 60
-        for s = 0, steps do
-            local wx = wW * s / steps
-            local wy = w.y + math.sin(wx * w.freq + w.phase) * w.amp
-            pts[#pts + 1] = wx
-            pts[#pts + 1] = wy
-        end
-        if #pts >= 4 then love.graphics.line(pts) end
-    end
-    love.graphics.setLineWidth(1)
+    -- love.graphics.setLineWidth(1.5)
+    -- for _, w in ipairs(waves) do
+    --     setC(0.20, 0.65, 0.90, alpha * w.alpha)
+    --     local pts = {}
+    --     local steps = 60
+    --     for s = 0, steps do
+    --         local wx = wW * s / steps
+    --         local wy = w.y + math.sin(wx * w.freq + w.phase) * w.amp
+    --         pts[#pts + 1] = wx
+    --         pts[#pts + 1] = wy
+    --     end
+    --     if #pts >= 4 then love.graphics.line(pts) end
+    -- end
+    -- love.graphics.setLineWidth(1)
 
 
-    -- ── Glow behind title ─────────────────────────────────────
     local tcx = wW / 2
     local tcy = wH * 0.22
-    for i = 3, 1, -1 do
-        setC(0.10, 0.60, 0.85, alpha * 0.06 * i)
-        love.graphics.circle("fill", tcx, tcy, 120 * i)
-    end
+
 
     -- ── Title ─────────────────────────────────────────────────
     love.graphics.setFont(font.title or font.h)
@@ -183,18 +176,17 @@ function MainMenu.draw(font)
     local title2 = "Me"
     local tw1    = (font.title or font.h):getWidth(title1)
     local tw2    = (font.title or font.h):getWidth(title2)
-    local th1    = (font.title or font.h):getWidth(title1)
-    local th2    = (font.title or font.h):getWidth(title2)
+    local th   = (font.title or font.h):getHeight(title1)/1.5
 
     -- shadow layers
     for off = 4, 1, -1 do
         setC(0, 0.2, 0.4, alpha * 0.15 * off)
-        love.graphics.print(title1, tcx - tw1 / 2 + off, tcy - 32 + off)
+        love.graphics.print(title1, tcx - tw1 / 2 + off, tcy - th + off)
         love.graphics.print(title2, tcx - tw2 / 2 + off, tcy + off)
     end
     -- main text
     setC(0.55, 0.92, 1, alpha)
-    love.graphics.print(title1, tcx - tw1 / 2, tcy - font.:getHeight())
+    love.graphics.print(title1, tcx - tw1 / 2, tcy - th)
     setC(0.90, 0.98, 1, alpha)
     love.graphics.print(title2, tcx - tw2 / 2, tcy)
 
@@ -241,14 +233,14 @@ function MainMenu.draw(font)
         setC(0.85 + ha * 0.15, 0.95 + ha * 0.05, 1, bAlpha)
         love.graphics.print(b.label,
             b.x + slideX + (b.w - lw) / 2,
-            b.y + b.h / 2 - font.sm:getHeight() / 2 - 6)
+            b.y + b.h / 2 - font.sm:getHeight())
 
         -- sub-label
         local sw = font.sm:getWidth(b.sub)
         setC(0.45 + ha * 0.20, 0.72 + ha * 0.15, 0.85, bAlpha * 0.75)
         love.graphics.print(b.sub,
             b.x + slideX + (b.w - sw) / 2,
-            b.y + b.h / 2 + 2)
+            b.y + b.h / 2)
     end
 
     love.graphics.setFont(font.sm)

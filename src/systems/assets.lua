@@ -27,6 +27,7 @@ function Assets.load()
 
     -- Fonts  (screen-space pixel sizes)
     Assets.font = {
+        title = love.graphics.newFont(Settings.FONTS.jersey, Settings.FONT_SIZES.title),
         h  = love.graphics.newFont(Settings.FONTS.jersey, Settings.FONT_SIZES.h),
         sm = love.graphics.newFont(Settings.FONTS.jersey, Settings.FONT_SIZES.sm),
     }

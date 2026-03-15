@@ -236,3 +236,26 @@ function love.mousepressed(x, y, button)
 
 
 end
+
+function love.mousereleased(x, y, button)
+    if gameState ~= "playing" then return end
+    if button == 1 then Camera.endDrag() end
+end
+
+
+function love.mousemoved(x, y, dx, dy)
+    if gameState ~= "playing" then return end
+    if not HUD.inventoryOpen and not Market.open then
+        Camera.onDrag(y)
+    end
+end
+
+function love.wheelmoved(x, y)
+    if gameState ~= "playing" then return end
+    local mx, my = love.mouse.getPosition()
+    if Market.open then
+        Market.onWheel(mx, my, y, wW, wH)
+    else
+        HUD.onWheel(mx, my, x, y, wW, wH)
+    end
+end

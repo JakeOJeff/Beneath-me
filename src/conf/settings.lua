@@ -13,8 +13,8 @@ Settings.FRICTION              = 0.98
 Settings.DEPTH_ZONE_THRESHOLD  = -70
 
 -- Fish spawning
-Settings.FISH_SPAWN_INTERVAL   = 1
-Settings.MAX_FISH              = 50
+Settings.FISH_SPAWN_INTERVAL   = 4
+Settings.MAX_FISH              = 12
 
 -- Asset paths
 Settings.FONTS = {
@@ -22,8 +22,9 @@ Settings.FONTS = {
 }
 
 Settings.FONT_SIZES = {
+    title = 100,
     h  = 36,
-    sm = 28,
+    sm = 24,
 }
 
 return Settings

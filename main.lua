@@ -20,7 +20,7 @@ Fish            = require("src.classes.fish")
 
 local gameState = "menu"
 
--- Convenience aliases
+-- Convenience aliasesf
 local mW, mH, wW, wH, scale
 
 -- In-game state

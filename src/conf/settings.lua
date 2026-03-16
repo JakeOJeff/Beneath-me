@@ -22,7 +22,7 @@ Settings.FONTS = {
 }
 
 Settings.FONT_SIZES = {
-    title = 100,
+    title = 120,
     h  = 36,
     sm = 24,
 }

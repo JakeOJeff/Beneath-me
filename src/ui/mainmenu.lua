@@ -16,6 +16,8 @@ MainMenu.timer     = 0
 local waves        = {}
 local NUM_WAVES    = 7
 
+
+
 -- Buttons
 local buttons = {
     { id = "play",    label = "CAST OFF",    sub = "Begin your voyage" },
@@ -28,6 +30,9 @@ local buttons = {
 -- ─────────────────────────────────────────────────────────────
 
 function MainMenu.init(wW, wH)
+        love.graphics.setDefaultFilter("nearest", "nearest")
+bgImg = love.graphics.newImage("assets/watertop/stable.png")
+
     MainMenu.wW    = wW
     MainMenu.wH    = wH
     MainMenu.timer = 0
@@ -168,6 +173,11 @@ function MainMenu.draw(font)
 
     local tcx = wW / 2
     local tcy = wH * 0.22
+
+    love.graphics.push()
+    love.graphics.scale(Settings.SCALE, Settings.SCALE)
+    love.graphics.draw(bgImg)
+    love.graphics.pop()
 
 
     -- ── Title ─────────────────────────────────────────────────

@@ -1,4 +1,4 @@
--- main.lua
+
 
 Settings        = require("src.conf.settings")
 Assets          = require("src.systems.assets")
@@ -12,18 +12,18 @@ Market          = require("src.ui.market")
 fishDefs        = require("src.conf.fish_defs")
 Fish            = require("src.classes.fish")
 
--- ─────────────────────────────────────────────────────────────
---  Game state machine
---  "menu"    → main menu is active
---  "playing" → in-game
--- ─────────────────────────────────────────────────────────────
+
+
+
+
+
 
 local gameState = "menu"
 
--- Convenience aliasesf
+
 local mW, mH, wW, wH, scale
 
--- In-game state
+
 local timer         = 0
 local score         = 0
 local catchFeedback = nil
@@ -31,9 +31,9 @@ local player        = { x = 0, y = 0, rotation = 0 }
 local baseY         = 0
 local ox, oy        = 0, 0
 
--- ─────────────────────────────────────────────────────────────
---  Helpers
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 local function distFromCenter(x, y)
     return (mW / 2) - x, (mH / 2) - y
@@ -43,9 +43,9 @@ local function maxDepth(depths)
     return -(depths[1]:getHeight() * #depths - mH + 10)
 end
 
--- ─────────────────────────────────────────────────────────────
---  Catch logic
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 local function catchFish(idx)
     local f   = FishManager.fish[idx]
@@ -69,9 +69,9 @@ local function catchFish(idx)
     FishManager.remove(idx)
 end
 
--- ─────────────────────────────────────────────────────────────
---  love.load
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
@@ -89,27 +89,27 @@ function love.load()
     FishManager.init()
     ParticleManager.init()
 
-    -- Main menu: needs screen dimensions (unscaled window pixels)
+
     MainMenu.init(wW, wH)
 end
 
--- ─────────────────────────────────────────────────────────────
---  love.update
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function love.update(dt)
     if gameState == "menu" then
         MainMenu.update(dt)
         return
     end
-    HUD.update(dt)  -- already handles tips internally
+    HUD.update(dt)
 
     if score > 30 then
         HUD.showTips(false)
 
     end
 
-    -- ── playing ──────────────────────────────────────────────
+
     timer = timer + dt
     ox, oy = distFromCenter(player.x, player.y)
 
@@ -130,18 +130,18 @@ function love.update(dt)
     end
 end
 
--- ─────────────────────────────────────────────────────────────
---  love.draw
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function love.draw()
-    -- ── Main menu ────────────────────────────────────────────
+
     if gameState == "menu" then
         MainMenu.draw(Assets.font)
         return
     end
 
-    -- ── Playing ──────────────────────────────────────────────
+
     love.graphics.push()
     love.graphics.scale(scale, scale)
 
@@ -188,9 +188,9 @@ function love.draw()
             Assets.ruler, Assets.pointer, Assets.depths,
             mW, mH, Camera.offsetY, Settings.DEPTH_ZONE_THRESHOLD)
 
-    love.graphics.pop()  -- scale
+    love.graphics.pop()
 
-    -- ── Screen-space HUD ────────────────────────────────────
+
     HUD.drawButton(Assets.font, Camera.isInDepthZone(), HUD.surfaceBtn)
     HUD.drawButton(Assets.font, true, HUD.inventoryBtn)
     HUD.drawButton(Assets.font, true, HUD.marketBtn)
@@ -208,19 +208,19 @@ function love.draw()
     HUD.drawCatchFeedback(Assets.font, catchFeedback, wW, wH)
     ParticleManager.draw()
 
-    -- Panels (drawn last → always on top)
+
     HUD.drawInventory(Assets.font, FishManager.inventory, wW, wH)
     Market.draw(Assets.font, FishManager.inventory, score, wW, wH)
 end
 
--- ─────────────────────────────────────────────────────────────
---  Input
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function love.mousepressed(x, y, button)
     if button ~= 1 then return end
 
-    -- ── Menu ─────────────────────────────────────────────────
+
     if gameState == "menu" then
         MainMenu.mousepressed(x, y, button, function()
             gameState = "playing"
@@ -228,9 +228,9 @@ function love.mousepressed(x, y, button)
         return
     end
 
-    -- ── Playing ──────────────────────────────────────────────
 
-    -- Market panel (check first — it sits on top)
+
+
     if Market.open then
         if Market.handleClick(x, y, wW, wH, FishManager.inventory,
             function(delta)
@@ -240,33 +240,33 @@ function love.mousepressed(x, y, button)
         end
     end
 
-    -- Inventory panel
+
     if HUD.handleInventoryClick(x, y, wW, wH) then return end
 
-    -- Surface button
+
     if HUD.hitBtn(HUD.surfaceBtn, x, y) then
         Camera.returnToSurface()
         FishManager.clear()
         return
     end
 
-    -- Inventory toggle
+
     if HUD.hitBtn(HUD.inventoryBtn, x, y) then
         HUD.toggleInventory()
-        -- close market if opening inventory
+
         if HUD.inventoryOpen then Market.open = false end
         return
     end
 
-    -- Market toggle
+
     if HUD.hitBtn(HUD.marketBtn, x, y) then
         Market.toggle(score)
-        -- close inventory if opening market
+
         if Market.open then HUD.inventoryOpen = false end
         return
     end
 
-    -- Fish click / camera drag (only when no panels are open)
+
     if not HUD.inventoryOpen and not Market.open then
         local idx = FishManager.hitTest(x, y)
         if idx then
@@ -292,7 +292,7 @@ end
 function love.wheelmoved(x, y)
     if gameState ~= "playing" then return end
     local mx, my = love.mouse.getPosition()
-    -- route to whichever panel is open
+
     if Market.open then
         Market.onWheel(mx, my, y, wW, wH)
     else

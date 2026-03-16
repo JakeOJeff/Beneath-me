@@ -1,14 +1,14 @@
--- ui/market.lua
--- Two-tab market panel: Sell fish  |  Shop (upgrades)
+
+
 
 local Market = {}
 
--- ─────────────────────────────────────────────────────────────
---  Layout constants
--- ─────────────────────────────────────────────────────────────
 
-local PW         = 480    -- panel width
-local PH         = 520    -- panel height
+
+
+
+local PW         = 480
+local PH         = 520
 local PAD        = 14
 local HEADER_H   = 44
 local TAB_H      = 36
@@ -17,35 +17,35 @@ local CARD_GAP   = 8
 local CLOSE_SZ   = 26
 local SCROLL_SPD = 55
 
--- Shop items (placeholder rectangles + metadata)
+
 local shopItems = {
-    -- Luck upgrades
+
     { tab = "shop", category = "luck",  name = "Lucky Charm I",   desc = "Common fish +15% spawn rate",  cost = 80,   color = {0.40, 0.75, 0.40} },
     { tab = "shop", category = "luck",  name = "Lucky Charm II",  desc = "Rare fish +20% spawn rate",    cost = 200,  color = {0.35, 0.65, 1.00} },
     { tab = "shop", category = "luck",  name = "Siren's Whistle", desc = "Legendary +10% spawn rate",    cost = 600,  color = {1.00, 0.80, 0.20} },
-    -- Rod upgrades
+
     { tab = "shop", category = "rod",   name = "Iron Rod",        desc = "Catch radius +10px",           cost = 120,  color = {0.70, 0.70, 0.80} },
     { tab = "shop", category = "rod",   name = "Coral Rod",       desc = "Catch radius +25px, +5% pts",  cost = 340,  color = {1.00, 0.45, 0.45} },
     { tab = "shop", category = "rod",   name = "Abyss Rod",       desc = "Max fish +5, depth bonus",     cost = 900,  color = {0.30, 0.20, 0.80} },
 }
 
--- ─────────────────────────────────────────────────────────────
---  State
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 Market.open       = false
-Market.anim       = 0          -- 0=closed  1=open
-Market.activeTab  = "sell"     -- "sell" | "shop"
+Market.anim       = 0
+Market.activeTab  = "sell"
 Market.sellScroll = 0
 Market.sellScrollTarget = 0
 Market.shopScroll = 0
 Market.shopScrollTarget = 0
 Market._closeBtn  = nil
-Market._coins     = nil        -- reference to score (set on open)
+Market._coins     = nil
 
--- ─────────────────────────────────────────────────────────────
---  Public API
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function Market.toggle(scoreRef)
     Market.open  = not Market.open
@@ -81,16 +81,16 @@ function Market.onWheel(mx, my, dy, wW, wH)
     end
 end
 
--- Returns true if click consumed; also handles sell / buy actions.
--- inventory: FishManager.inventory table (reference)
--- scoreCallback: function(delta) to modify score
+
+
+
 function Market.handleClick(sx, sy, wW, wH, inventory, scoreCallback)
     if Market.anim < 0.05 then return false end
 
     local px = (wW - PW) / 2
     local py = (wH - PH) / 2
 
-    -- close button
+
     if Market._closeBtn then
         local c = Market._closeBtn
         if sx >= c.x and sx <= c.x + c.w and sy >= c.y and sy <= c.y + c.h then
@@ -99,7 +99,7 @@ function Market.handleClick(sx, sy, wW, wH, inventory, scoreCallback)
         end
     end
 
-    -- tab switches
+
     local tabY   = py + HEADER_H
     local halfW  = PW / 2
     if sy >= tabY and sy <= tabY + TAB_H then
@@ -112,16 +112,16 @@ function Market.handleClick(sx, sy, wW, wH, inventory, scoreCallback)
         end
     end
 
-    -- content area interactions
+
     local contentTop = py + HEADER_H + TAB_H
     local contentH   = PH - HEADER_H - TAB_H
 
     if Market.activeTab == "sell" then
-        -- sell button per fish card
+
         local scroll = Market.sellScroll
         for i, f in ipairs(inventory) do
             local iy = contentTop + PAD + (i - 1) * (CARD_H + CARD_GAP) - scroll
-            -- "Sell" button: right side of card
+
             local bw, bh = 60, 28
             local bx = px + PW - PAD - bw
             local by = iy + (CARD_H - bh) / 2
@@ -129,12 +129,12 @@ function Market.handleClick(sx, sy, wW, wH, inventory, scoreCallback)
                 local pts = f.def and f.def.points or 0
                 scoreCallback(pts)
                 table.remove(inventory, i)
-                -- adjust scroll
+
                 Market.sellScrollTarget = math.max(0, Market.sellScrollTarget - (CARD_H + CARD_GAP))
                 return true
             end
         end
-        -- "Sell All" button
+
         local saW, saH = 100, 30
         local saX = px + (PW - saW) / 2
         local saY = py + PH - saH - 10
@@ -145,7 +145,7 @@ function Market.handleClick(sx, sy, wW, wH, inventory, scoreCallback)
             end
             scoreCallback(total)
             for k in pairs(inventory) do inventory[k] = nil end
-            -- re-index
+
             local tmp = {}
             for _, v in pairs(inventory) do tmp[#tmp + 1] = v end
             for k in pairs(inventory) do inventory[k] = nil end
@@ -153,8 +153,8 @@ function Market.handleClick(sx, sy, wW, wH, inventory, scoreCallback)
             return true
         end
 
-    else  -- shop tab
-        -- buy button per shop item
+    else
+
         local scroll = Market.shopScroll
         for i, item in ipairs(shopItems) do
             local iy = contentTop + PAD + (i - 1) * (CARD_H + CARD_GAP) - scroll
@@ -162,23 +162,23 @@ function Market.handleClick(sx, sy, wW, wH, inventory, scoreCallback)
             local bx = px + PW - PAD - bw
             local by = iy + (CARD_H - bh) / 2
             if sx >= bx and sx <= bx + bw and sy >= by and sy <= by + bh then
-                -- placeholder: just deduct cost
+
                 scoreCallback(-item.cost)
                 return true
             end
         end
     end
 
-    -- swallow any click inside panel
+
     if sx >= px and sx <= px + PW and sy >= py and sy <= py + PH then
         return true
     end
     return false
 end
 
--- ─────────────────────────────────────────────────────────────
---  Draw
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 local rarityColors = {
     common    = {0.75, 0.85, 0.95},
@@ -204,29 +204,29 @@ function Market.draw(font, inventory, score, wW, wH)
     local px = (wW - PW) / 2
     local py = (wH - PH) / 2
 
-    -- slide from below
+
     local slideY = (1 - a) * (PH * 0.4)
     love.graphics.push()
     love.graphics.translate(0, slideY)
 
-    -- ── Drop shadow ──────────────────────────────────────────
+
     setC(0, 0, 0, 0.5 * a)
     love.graphics.rectangle("fill", px + 6, py + 10, PW, PH, 8, 8)
 
-    -- ── Panel background ─────────────────────────────────────
+
     setC(0.03, 0.07, 0.17, 0.97 * a)
     love.graphics.rectangle("fill", px, py, PW, PH, 8, 8)
 
-    -- subtle inner gradient bands
+
     setC(0.06, 0.14, 0.28, 0.35 * a)
     love.graphics.rectangle("fill", px, py, PW, PH * 0.35, 8, 8)
     love.graphics.rectangle("fill", px, py, PW, PH * 0.35)
 
-    -- ── Outer border ─────────────────────────────────────────
+
     setC(0.22, 0.52, 0.80, 0.65 * a)
     love.graphics.rectangle("line", px, py, PW, PH, 8, 8)
 
-    -- corner accent squares
+
     local ca = 8
     local corners = {
         {px,        py        },
@@ -239,26 +239,26 @@ function Market.draw(font, inventory, score, wW, wH)
         love.graphics.rectangle("fill", c[1], c[2], ca, ca)
     end
 
-    -- ── Header bar ───────────────────────────────────────────
+
     setC(0.05, 0.13, 0.30, 0.98 * a)
     love.graphics.rectangle("fill", px, py, PW, HEADER_H, 8, 8)
     love.graphics.rectangle("fill", px, py + HEADER_H - 8, PW, 8)
 
-    -- header title
+
     love.graphics.setFont(font.h)
-    local htitle = "⚓  HARBOUR MARKET"
+    local htitle = "  HARBOUR MARKET"
     local htW    = font.h:getWidth(htitle)
     setC(0.55, 0.88, 1, a)
     love.graphics.print(htitle, px + PAD, py + (HEADER_H - font.h:getHeight()) / 2)
 
-    -- coin display
+
     love.graphics.setFont(font.sm)
-    local coinTxt = "⬡ " .. score .. " pts"
+    local coinTxt = " " .. score .. " pts"
     local coinW   = font.sm:getWidth(coinTxt)
     setC(1.00, 0.82, 0.25, a)
     love.graphics.print(coinTxt, px + PW - coinW - CLOSE_SZ - 16, py + (HEADER_H - font.sm:getHeight()) / 2)
 
-    -- close button
+
     local cx = px + PW - CLOSE_SZ - 8
     local cy = py + (HEADER_H - CLOSE_SZ) / 2
     setC(0.18, 0.38, 0.65, 0.85 * a)
@@ -271,7 +271,7 @@ function Market.draw(font, inventory, score, wW, wH)
     love.graphics.print("X", cx + (CLOSE_SZ - xW) / 2, cy + (CLOSE_SZ - font.sm:getHeight()) / 2)
     Market._closeBtn = { x = cx, y = cy + slideY, w = CLOSE_SZ, h = CLOSE_SZ }
 
-    -- ── Tabs ─────────────────────────────────────────────────
+
     local tabY  = py + HEADER_H
     local halfW = PW / 2
     local tabs  = { { id = "sell", label = "SELL CATCH" }, { id = "shop", label = "SHOP" } }
@@ -286,14 +286,14 @@ function Market.draw(font, inventory, score, wW, wH)
         local lw = font.sm:getWidth(tab.label)
         setC(active and 1 or 0.55, active and 1 or 0.75, active and 1 or 0.90, a)
         love.graphics.print(tab.label, tx + (halfW - lw) / 2, tabY + (TAB_H - font.sm:getHeight()) / 2)
-        -- active underline
+
         if active then
             setC(0.35, 0.75, 1, a * 0.90)
             love.graphics.rectangle("fill", tx + 6, tabY + TAB_H - 3, halfW - 12, 3, 1, 1)
         end
     end
 
-    -- ── Content area (scissored) ─────────────────────────────
+
     local contentTop = py + HEADER_H + TAB_H
     local bottomBarH = 50
     local contentH   = PH - HEADER_H - TAB_H - bottomBarH
@@ -307,7 +307,7 @@ function Market.draw(font, inventory, score, wW, wH)
 
     love.graphics.setScissor()
 
-    -- ── Bottom bar ───────────────────────────────────────────
+
     local barY = py + PH - bottomBarH
     setC(0.04, 0.10, 0.24, 0.95 * a)
     love.graphics.rectangle("fill", px, barY, PW, bottomBarH)
@@ -315,7 +315,7 @@ function Market.draw(font, inventory, score, wW, wH)
     love.graphics.line(px, barY, px + PW, barY)
 
     if Market.activeTab == "sell" then
-        -- Sell All button
+
         local saW, saH = 100, 30
         local saX = px + (PW - saW) / 2
         local saY = barY + (bottomBarH - saH) / 2
@@ -329,7 +329,7 @@ function Market.draw(font, inventory, score, wW, wH)
         setC(1, 0.82, 0.30, a)
         love.graphics.print(sal, saX + (saW - saLW) / 2, saY + (saH - font.sm:getHeight()) / 2)
 
-        -- total value hint
+
         local total = 0
         for _, f in ipairs(inventory) do total = total + (f.def and f.def.points or 0) end
         local hint = "Total: " .. total .. " pts"
@@ -348,9 +348,9 @@ function Market.draw(font, inventory, score, wW, wH)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
--- ─────────────────────────────────────────────────────────────
---  Sell tab content
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function Market._drawSellTab(font, inventory, px, contentTop, contentH, pw, a)
     local scroll   = Market.sellScroll
@@ -375,17 +375,17 @@ function Market._drawSellTab(font, inventory, px, contentTop, contentH, pw, a)
         local rar = f.def and f.def.rarity or "common"
         local rc  = rarityColors[rar] or rarityColors.common
 
-        -- card bg
+
         setC(0.05, 0.12, 0.26, 0.94 * a)
         love.graphics.rectangle("fill", ix, iy, iw, CARD_H, 5, 5)
-        -- rarity strip
+
         setC(rc[1], rc[2], rc[3], 0.90 * a)
         love.graphics.rectangle("fill", ix, iy, 4, CARD_H, 3, 3)
-        -- border
+
         setC(rc[1] * 0.6, rc[2] * 0.6, rc[3] * 0.6, 0.30 * a)
         love.graphics.rectangle("line", ix, iy, iw, CARD_H, 5, 5)
 
-        -- fish sprite placeholder OR actual sprite
+
         if f.def and f.def.img then
             local img    = f.def.img
             local iSW, iSH = img:getDimensions()
@@ -404,20 +404,20 @@ function Market._drawSellTab(font, inventory, px, contentTop, contentH, pw, a)
             setC(rc[1], rc[2], rc[3], 0.80 * a)
             love.graphics.print("[" .. rar:upper() .. "]", textX, iy + 8 + font.sm:getHeight() + 2)
         else
-            -- plain rect placeholder
+
             setC(0.20, 0.40, 0.60, 0.55 * a)
             love.graphics.rectangle("fill", ix + 8, iy + 8, CARD_H - 16, CARD_H - 16, 3, 3)
         end
 
-        -- value badge
+
         local pts   = f.def and f.def.points or 0
         love.graphics.setFont(font.sm)
-        local valTx = "⬡ " .. pts
+        local valTx = " " .. pts
         local valW  = font.sm:getWidth(valTx)
         setC(1.00, 0.82, 0.25, a)
         love.graphics.print(valTx, ix + iw - valW - 76, iy + 10)
 
-        -- Sell button
+
         local bw, bh = 60, 28
         local bx = ix + iw - bw
         local by = iy + (CARD_H - bh) / 2
@@ -431,7 +431,7 @@ function Market._drawSellTab(font, inventory, px, contentTop, contentH, pw, a)
         love.graphics.print(sl, bx + (bw - slW) / 2, by + (bh - font.sm:getHeight()) / 2)
     end
 
-    -- scrollbar
+
     if listH > contentH then
         local sbH = math.max(24, contentH * (contentH / listH))
         local sbY = contentTop + (scroll / maxScroll) * (contentH - sbH)
@@ -440,9 +440,9 @@ function Market._drawSellTab(font, inventory, px, contentTop, contentH, pw, a)
     end
 end
 
--- ─────────────────────────────────────────────────────────────
---  Shop tab content
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function Market._drawShopTab(font, score, px, contentTop, contentH, pw, a)
     local scroll    = Market.shopScroll
@@ -450,7 +450,7 @@ function Market._drawShopTab(font, score, px, contentTop, contentH, pw, a)
     local maxScroll = math.max(0, listH - contentH + PAD * 2)
     Market.shopScrollTarget = math.max(0, math.min(Market.shopScrollTarget, maxScroll))
 
-    -- section labels
+
     local lastCat = nil
 
     for i, item in ipairs(shopItems) do
@@ -460,48 +460,48 @@ function Market._drawShopTab(font, score, px, contentTop, contentH, pw, a)
         local rc  = item.color
         local canAfford = (score >= item.cost)
 
-        -- category divider
+
         if item.category ~= lastCat then
             lastCat = item.category
             local catLabel = item.category == "luck" and "— LUCK UPGRADES —" or "— ROD UPGRADES —"
             love.graphics.setFont(font.sm)
             local clW = font.sm:getWidth(catLabel)
             setC(0.35, 0.65, 0.85, a * 0.60)
-            -- (the label sits above the card, so we just annotate without consuming vertical space)
+
         end
 
-        -- card bg
+
         setC(0.05, 0.11, 0.24, 0.94 * a)
         love.graphics.rectangle("fill", ix, iy, iw, CARD_H, 5, 5)
 
-        -- color strip (item rarity / category color)
+
         setC(rc[1], rc[2], rc[3], 0.85 * a)
         love.graphics.rectangle("fill", ix, iy, 4, CARD_H, 3, 3)
 
-        -- dim overlay if can't afford
+
         if not canAfford then
             setC(0, 0, 0, 0.35 * a)
             love.graphics.rectangle("fill", ix, iy, iw, CARD_H, 5, 5)
         end
 
-        -- border
+
         setC(rc[1] * 0.55, rc[2] * 0.55, rc[3] * 0.55, 0.35 * a)
         love.graphics.rectangle("line", ix, iy, iw, CARD_H, 5, 5)
 
-        -- item icon placeholder (colored rect)
+
         local iconSz = CARD_H - 16
         setC(rc[1] * 0.55, rc[2] * 0.55, rc[3] * 0.55, 0.65 * a)
         love.graphics.rectangle("fill", ix + 10, iy + 8, iconSz, iconSz, 4, 4)
         setC(rc[1], rc[2], rc[3], 0.50 * a)
         love.graphics.rectangle("line", ix + 10, iy + 8, iconSz, iconSz, 4, 4)
-        -- category symbol inside icon
+
         love.graphics.setFont(font.sm)
-        local sym = item.category == "luck" and "★" or "⊕"
+        local sym = item.category == "luck" and "" or "⊕"
         local symW = font.sm:getWidth(sym)
         setC(1, 1, 1, a * (canAfford and 0.85 or 0.40))
         love.graphics.print(sym, ix + 10 + (iconSz - symW) / 2, iy + 8 + (iconSz - font.sm:getHeight()) / 2)
 
-        -- item info
+
         local textX = ix + iconSz + 20
         love.graphics.setFont(font.sm)
         setC(canAfford and 1 or 0.50, canAfford and 1 or 0.55, canAfford and 1 or 0.60, a)
@@ -509,14 +509,14 @@ function Market._drawShopTab(font, score, px, contentTop, contentH, pw, a)
         setC(0.55, 0.75, 0.88, a * (canAfford and 0.75 or 0.40))
         love.graphics.print(item.desc, textX, iy + 8 + font.sm:getHeight() + 3)
 
-        -- cost badge
-        local costTx = "⬡ " .. item.cost
+
+        local costTx = " " .. item.cost
         local costW  = font.sm:getWidth(costTx)
         local costClr = canAfford and {1.00, 0.82, 0.25} or {0.55, 0.45, 0.25}
         setC(costClr[1], costClr[2], costClr[3], a)
         love.graphics.print(costTx, ix + iw - costW - 76, iy + 10)
 
-        -- buy button
+
         local bw, bh = 64, 28
         local bx = ix + iw - bw
         local by = iy + (CARD_H - bh) / 2
@@ -538,7 +538,7 @@ function Market._drawShopTab(font, score, px, contentTop, contentH, pw, a)
         love.graphics.print(bl, bx + (bw - blW) / 2, by + (bh - font.sm:getHeight()) / 2)
     end
 
-    -- scrollbar
+
     if listH > contentH then
         local sbH = math.max(24, contentH * (contentH / listH))
         local sbY = contentTop + (scroll / maxScroll) * (contentH - sbH)

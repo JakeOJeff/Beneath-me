@@ -1,22 +1,22 @@
--- ui/hud.lua
--- Draws all screen-space HUD elements
+
+
 
 local Settings = require("src.conf.settings")
 local Camera   = require("src.systems.camera")
 
 local HUD = {}
 
--- ─────────────────────────────────────────────────────────────
---  Button geometry (screen-space pixels)
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 HUD.surfaceBtn   = { x = 14, y = 14,                      w = 120, h = 34, label = "Surface"   }
 HUD.inventoryBtn = { x = 14, y = 14 + 34 + 5,             w = 120, h = 34, label = "Inventory" }
-HUD.marketBtn    = { x = 14, y = 14 + 34 + 5 + 34 + 5,    w = 120, h = 34, label = "⚓ Market"  }
+HUD.marketBtn    = { x = 14, y = 14 + 34 + 5 + 34 + 5,    w = 120, h = 34, label = " Market"  }
 
--- ─────────────────────────────────────────────────────────────
---  Inventory panel state
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 HUD.inventoryOpen   = false
 HUD.invScroll       = 0
@@ -32,9 +32,9 @@ local CLOSE_SIZE  = 24
 local PANEL_MAX_H = 480
 local SCROLL_SPEED = 60
 
--- ─────────────────────────────────────────────────────────────
---  Tips system
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 local TIPS = {
     "Fish may take a moment to appear...",
@@ -47,13 +47,13 @@ local TIPS = {
     "Patience is the best bait.",
 }
 
-local TIP_SHOW_TIME  = 3.5   -- seconds the tip is fully visible
-local TIP_FADE_TIME  = 1.0   -- seconds for fade in/out each side
+local TIP_SHOW_TIME  = 3.5
+local TIP_FADE_TIME  = 1.0
 local TIP_CYCLE_TIME = TIP_SHOW_TIME + TIP_FADE_TIME * 2
 
 HUD._tipIndex   = 1
-HUD._tipTimer   = 0          -- time within the current cycle
-HUD._tipVisible = true       -- set false to suppress tips entirely
+HUD._tipTimer   = 0
+HUD._tipVisible = true
 
 function HUD.showTips(enabled)
     HUD._tipVisible = enabled
@@ -70,9 +70,9 @@ local function _tipAlpha()
     end
 end
 
--- ─────────────────────────────────────────────────────────────
---  Helpers
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function HUD.hitBtn(button, sx, sy)
     local b = button
@@ -99,7 +99,7 @@ function HUD.update(dt)
     HUD.invAnim  = HUD.invAnim + (target - HUD.invAnim) * math.min(1, dt * 12)
     HUD.invScroll = HUD.invScroll + (HUD.invScrollTarget - HUD.invScroll) * math.min(1, dt * 14)
 
-    -- advance tip timer
+
     if HUD._tipVisible then
         HUD._tipTimer = HUD._tipTimer + dt
         if HUD._tipTimer >= TIP_CYCLE_TIME then
@@ -120,9 +120,9 @@ local rarityGlow = {
     legendary = { 1.00, 0.75, 0.10, 0.40 },
 }
 
--- ─────────────────────────────────────────────────────────────
---  Tip draw
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function HUD.drawTip(font, wW)
     if not HUD._tipVisible then return end
@@ -136,7 +136,7 @@ function HUD.drawTip(font, wW)
     local tx = (wW - tw) / 2
     local ty = 10
 
-    -- subtle shadow for legibility
+
     love.graphics.setColor(0, 0, 0, 0.35 * a)
     love.graphics.print(text, tx + 1, ty + 1)
 
@@ -146,9 +146,9 @@ function HUD.drawTip(font, wW)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
--- ─────────────────────────────────────────────────────────────
---  Inventory panel draw
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function HUD.drawInventory(font, inventory, wW, wH)
     if HUD.invAnim < 0.005 then return end
@@ -163,16 +163,16 @@ function HUD.drawInventory(font, inventory, wW, wH)
     love.graphics.push()
     love.graphics.translate(0, slideY)
 
-    -- shadow
+
     love.graphics.setColor(0, 0, 0, 0.55 * a)
     love.graphics.rectangle("fill", px + 5, py + 8, pw, ph, 8, 8)
-    -- bg
+
     love.graphics.setColor(0.04, 0.09, 0.20, 0.96 * a)
     love.graphics.rectangle("fill", px, py, pw, ph, 8, 8)
-    -- border
+
     love.graphics.setColor(0.25, 0.55, 0.90, 0.70 * a)
     love.graphics.rectangle("line", px, py, pw, ph, 8, 8)
-    -- header
+
     love.graphics.setColor(0.08, 0.18, 0.38, 0.95 * a)
     love.graphics.rectangle("fill", px, py, pw, HEADER_H, 8, 8)
     love.graphics.rectangle("fill", px, py + HEADER_H - 8, pw, 8)
@@ -182,7 +182,7 @@ function HUD.drawInventory(font, inventory, wW, wH)
     love.graphics.print("Inventory  (" .. #inventory .. " caught)",
         px + INV_PAD, py + (HEADER_H - font.h:getHeight()) / 2)
 
-    -- close btn
+
     local cx = px + pw - CLOSE_SIZE - 8
     local cy = py + (HEADER_H - CLOSE_SIZE) / 2
     love.graphics.setColor(0.20, 0.45, 0.75, 0.80 * a)
@@ -195,7 +195,7 @@ function HUD.drawInventory(font, inventory, wW, wH)
     love.graphics.print("X", cx + (CLOSE_SIZE - xLW) / 2, cy + (CLOSE_SIZE - font.sm:getHeight()) / 2)
     HUD._closeBtn = { x = cx, y = cy + slideY, w = CLOSE_SIZE, h = CLOSE_SIZE }
 
-    -- content
+
     local contentH  = ph - HEADER_H
     local listH     = #inventory * (CARD_H + CARD_GAP) - CARD_GAP
     local maxScroll = math.max(0, listH - contentH + INV_PAD * 2)
@@ -253,7 +253,7 @@ function HUD.drawInventory(font, inventory, wW, wH)
 
     love.graphics.setScissor()
 
-    -- scrollbar
+
     if #inventory > 0 then
         local visible = contentH - INV_PAD * 2
         if #inventory * (CARD_H + CARD_GAP) > visible then
@@ -268,9 +268,9 @@ function HUD.drawInventory(font, inventory, wW, wH)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
--- ─────────────────────────────────────────────────────────────
---  Scroll / click handlers
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function HUD.onWheel(x, y, dx, dy, wW, wH)
     if HUD.inventoryOpen and HUD.hitInventoryPanel(x, y, wW, wH) then
@@ -290,9 +290,9 @@ function HUD.handleInventoryClick(sx, sy, wW, wH)
     return HUD.hitInventoryPanel(sx, sy, wW, wH)
 end
 
--- ─────────────────────────────────────────────────────────────
---  Standard HUD elements
--- ─────────────────────────────────────────────────────────────
+
+
+
 
 function HUD.drawButton(font, inDepth, button)
     local b     = button

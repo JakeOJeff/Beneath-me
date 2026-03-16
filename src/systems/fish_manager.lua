@@ -9,19 +9,30 @@ function FishManager.init()
     spawnTimer = 0
 end
 
--- Weighted random selection biased by depth
+
 local function pickFishDef()
     local df = Camera.depthFraction()
     local weights, total = {}, 0
 
     for i, fd in ipairs(fishDefs) do
         local w = fd.rarityWeight
-        if fd.rarity == "common"    then w = w * (1 - df * 0.7) end
-        if fd.rarity == "rare"      then w = w * (0.3 + df * 0.7) end
-        if fd.rarity == "legendary" then w = w * (df * df) end
-        w          = math.max(w, 0.5)
+
+        if fd.rarity == "common" then
+            w = w * (1 - df * 0.7)
+
+        elseif fd.rarity == "uncommon" then
+            w = w * (0.8 + df * 0.6)
+
+        elseif fd.rarity == "rare" then
+            w = w * (0.6 + df * 0.7)
+
+        elseif fd.rarity == "legendary" then
+            w = w * (0.1 + df * df)
+        end
+
+        w = math.max(w, 0.5)
         weights[i] = w
-        total      = total + w
+        total = total + w
     end
 
     local r = math.random() * total
@@ -29,6 +40,7 @@ local function pickFishDef()
         r = r - weights[i]
         if r <= 0 then return fd end
     end
+
     return fishDefs[1]
 end
 
@@ -39,7 +51,7 @@ local function spawnOne(layers, depths, mH)
     local dir    = (math.random(2) == 1) and 1 or -1
     local speed  = math.random(12, 28) / 10
 
-    -- vertical range: just below surface layer → bottom of depth bg
+
     local topY   = mH - layers[#layers]:getHeight() + 10 - Camera.offsetY
     local botY   = mH + depths[1]:getHeight() - 10 - Camera.offsetY
     local spawnY = math.random(math.floor(topY + ih), math.floor(botY - ih))
@@ -63,7 +75,7 @@ function FishManager.update(dt, layers, depths, mH, mW)
         spawnTimer = 0
     end
 
-    -- update each fish, remove off-screen ones
+
     for i = #FishManager.fish, 1, -1 do
         local f = FishManager.fish[i]
         f:update(dt, love.timer and love.timer.getTime() or 0)
@@ -79,7 +91,7 @@ function FishManager.draw(timer)
     end
 end
 
----Check if a screen-space click hits a fish. Returns index or nil.
+
 function FishManager.hitTest(screenX, screenY)
     local gx       = screenX / Settings.SCALE
     local gy       = screenY / Settings.SCALE
@@ -93,7 +105,7 @@ function FishManager.hitTest(screenX, screenY)
     return nil
 end
 
----Remove and return the fish at the given index.
+
 function FishManager.remove(idx)
     return table.remove(FishManager.fish, idx)
 end

@@ -3,7 +3,7 @@
 local fishDefs = {
     {
         name         = "Tuna",
-        img          = nil,   -- loaded at runtime by assets.lua
+        img          = nil,
         imgPath      = "assets/fishes/tuna.png",
         rarity       = "common",
         rarityWeight = 60,
@@ -33,7 +33,7 @@ local fishDefs = {
         img          = nil,
         imgPath      = "assets/fishes/shark.png",
         rarity       = "legendary",
-        rarityWeight = 1,
+        rarityWeight = 100,
         points       = 400,
         color        = { 0.5, 0.4, 1 },
     },

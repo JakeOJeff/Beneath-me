@@ -10,7 +10,7 @@ function Camera.init(maxDepth)
     Camera.velocityY  = 0
 end
 
--- Call every frame when drag is NOT active to apply momentum + friction
+
 function Camera.update(dt)
     if not Camera.dragActive then
         Camera.offsetY  = math.min(Camera.offsetY + Camera.velocityY, Settings.INITIAL_OFFSET_Y)
@@ -20,7 +20,7 @@ function Camera.update(dt)
     end
 end
 
--- Called on mouse press (y in screen-space pixels)
+
 function Camera.startDrag(screenY)
     Camera.dragActive = true
     Camera.dragLastY  = screenY / Settings.SCALE
@@ -31,7 +31,7 @@ function Camera.endDrag()
     Camera.dragActive = false
 end
 
--- Called on mouse move while dragging
+
 function Camera.onDrag(screenY)
     if not Camera.dragActive then return end
     local gy = screenY / Settings.SCALE
@@ -41,7 +41,7 @@ function Camera.onDrag(screenY)
     Camera.offsetY    = math.max(Camera.offsetY, Camera.maxDepth)
 end
 
--- Animate back to surface
+
 function Camera.returnToSurface()
     local dist = math.abs(Camera.offsetY - Settings.INITIAL_OFFSET_Y)
     Camera.velocityY = dist * 0.12
@@ -52,7 +52,7 @@ function Camera.isInDepthZone()
     return Camera.offsetY < Settings.DEPTH_ZONE_THRESHOLD
 end
 
--- Returns 0 (at threshold) → 1 (at max depth)
+
 function Camera.depthFraction(maxDepth)
     local range = (maxDepth or Camera.maxDepth) - Settings.DEPTH_ZONE_THRESHOLD
     return math.min(1, math.max(0,

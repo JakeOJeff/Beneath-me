@@ -3,11 +3,11 @@
 local Particle = {}
 Particle.__index = Particle
 
----@param x   number  screen-space spawn x
----@param y   number  screen-space spawn y
----@param r   number  red   [0-1]
----@param g   number  green [0-1]
----@param b   number  blue  [0-1]
+
+
+
+
+
 function Particle.new(x, y, r, g, b)
     return setmetatable({
         x    = x,

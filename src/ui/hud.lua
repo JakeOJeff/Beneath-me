@@ -33,6 +33,44 @@ local PANEL_MAX_H = 480
 local SCROLL_SPEED = 60
 
 -- ─────────────────────────────────────────────────────────────
+--  Tips system
+-- ─────────────────────────────────────────────────────────────
+
+local TIPS = {
+    "Fish may take a moment to appear...",
+    "Rare fish hide in deeper waters.",
+    "Drag slowly for better catches.",
+    "Legendary fish are worth the wait.",
+    "Check the market to sell your catch.",
+    "Some fish only appear in the depth zone.",
+    "Your inventory holds every catch.",
+    "Patience is the best bait.",
+}
+
+local TIP_SHOW_TIME  = 3.5   -- seconds the tip is fully visible
+local TIP_FADE_TIME  = 1.0   -- seconds for fade in/out each side
+local TIP_CYCLE_TIME = TIP_SHOW_TIME + TIP_FADE_TIME * 2
+
+HUD._tipIndex   = 1
+HUD._tipTimer   = 0          -- time within the current cycle
+HUD._tipVisible = true       -- set false to suppress tips entirely
+
+function HUD.showTips(enabled)
+    HUD._tipVisible = enabled
+end
+
+local function _tipAlpha()
+    local t = HUD._tipTimer
+    if t < TIP_FADE_TIME then
+        return t / TIP_FADE_TIME
+    elseif t < TIP_FADE_TIME + TIP_SHOW_TIME then
+        return 1
+    else
+        return 1 - (t - TIP_FADE_TIME - TIP_SHOW_TIME) / TIP_FADE_TIME
+    end
+end
+
+-- ─────────────────────────────────────────────────────────────
 --  Helpers
 -- ─────────────────────────────────────────────────────────────
 
@@ -60,6 +98,15 @@ function HUD.update(dt)
     local target = HUD.inventoryOpen and 1 or 0
     HUD.invAnim  = HUD.invAnim + (target - HUD.invAnim) * math.min(1, dt * 12)
     HUD.invScroll = HUD.invScroll + (HUD.invScrollTarget - HUD.invScroll) * math.min(1, dt * 14)
+
+    -- advance tip timer
+    if HUD._tipVisible then
+        HUD._tipTimer = HUD._tipTimer + dt
+        if HUD._tipTimer >= TIP_CYCLE_TIME then
+            HUD._tipTimer = 0
+            HUD._tipIndex = (HUD._tipIndex % #TIPS) + 1
+        end
+    end
 end
 
 local rarityColors = {
@@ -72,6 +119,32 @@ local rarityGlow = {
     rare      = { 0.20, 0.50, 1.00, 0.30 },
     legendary = { 1.00, 0.75, 0.10, 0.40 },
 }
+
+-- ─────────────────────────────────────────────────────────────
+--  Tip draw
+-- ─────────────────────────────────────────────────────────────
+
+function HUD.drawTip(font, wW)
+    if not HUD._tipVisible then return end
+
+    local a    = _tipAlpha()
+    if a < 0.01 then return end
+
+    local text = TIPS[HUD._tipIndex]
+    love.graphics.setFont(font.sm)
+    local tw = font.sm:getWidth(text)
+    local tx = (wW - tw) / 2
+    local ty = 10
+
+    -- subtle shadow for legibility
+    love.graphics.setColor(0, 0, 0, 0.35 * a)
+    love.graphics.print(text, tx + 1, ty + 1)
+
+    love.graphics.setColor(0.75, 0.92, 1, 0.80 * a)
+    love.graphics.print(text, tx, ty)
+
+    love.graphics.setColor(1, 1, 1, 1)
+end
 
 -- ─────────────────────────────────────────────────────────────
 --  Inventory panel draw

@@ -102,6 +102,12 @@ function love.update(dt)
         MainMenu.update(dt)
         return
     end
+    HUD.update(dt)  -- already handles tips internally
+
+    if score > 30 then
+        HUD.showTips(false)
+
+    end
 
     -- ── playing ──────────────────────────────────────────────
     timer = timer + dt
@@ -189,6 +195,7 @@ function love.draw()
     HUD.drawButton(Assets.font, true, HUD.inventoryBtn)
     HUD.drawButton(Assets.font, true, HUD.marketBtn)
     HUD.drawScore(Assets.font, score, wW)
+    HUD.drawTip(Assets.font, wW)
 
     if not Camera.isInDepthZone() then
         HUD.drawDragHint(Assets.font, timer, wW, wH)
